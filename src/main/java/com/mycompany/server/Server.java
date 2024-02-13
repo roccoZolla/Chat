@@ -47,26 +47,6 @@ public class Server {
                 
                 // Avvia un nuovo thread per gestire la comunicazione con il client
                 new Thread(clientHandler).start();
-
-//                // flussi input output per comunicare con il client connesso
-//                BufferedReader input = new BufferedReader(new InputStreamReader(client_socket.getInputStream()));
-//                PrintWriter out = new PrintWriter(new OutputStreamWriter(client_socket.getOutputStream()), true);
-//                
-//                // Invio del messaggio al client
-//                out.println("Sei connesso al server!");
-//                
-//                // interrompe l'output stream per questo socket
-//                client_socket.shutdownOutput();
-//                
-//                // Legge messaggi inviati dal client
-//                String response;
-//                while ((response = input.readLine()) != null) {
-//                    System.out.println("Messaggio dal client: " + response);
-//                }
-//
-//                // Chiudi il socket_connected quando la comunicazione è terminata
-//                System.out.println("comunicazione terminata, chiusura connessione client");
-//                client_socket.close();
             }
         } catch (IOException e) {
             System.err.println("Errore durante l'esecuzione del server: " + e.getMessage());
