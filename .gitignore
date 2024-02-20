@@ -35,3 +35,4 @@ nb-configuration.xml
 # virtual machine crash logs
 hs_err_pid*
 replay_pid*
+/target/
