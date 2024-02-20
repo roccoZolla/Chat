@@ -17,29 +17,31 @@ import java.util.List;
 // 49152 porta dinamica non registrata
 // 127.0.0.1 local host
 public class Server {
-
+    // finestra in cui è possibile gestire le connessioni dei vari client
+    private static ManageFrame manage;
+    private static int server_port = 49152; // numero di porta da cui è possibile accedere al server
     private static List<ClientHandler> clientHandlers = new ArrayList<>();
     // private static int MAX_CONNECTIONS = 2;
-
-    public static void main(String[] args) {
-        // creazione del server
-        int port = 49152;
-        int connections = 0;
-
+    
+    // metodo che si occupa della creazione del server
+    private static void openServer() {
         try {
-            ServerSocket server = new ServerSocket(port);
+            ServerSocket server = new ServerSocket(server_port);
             // non è safe ma utile per il debugging veloce
             server.setReuseAddress(true);
 
             Socket client_socket = server.accept();
             System.out.println("Connessione accettata da: " + client_socket.getInetAddress());
             
+            manage.addClientLabel("client");
+            manage.setTextLabel("client connesso");
+
             PrintWriter out = new PrintWriter(client_socket.getOutputStream(), true);
-            
+
             out.println("Sei connesso al server!");
-            
+
             out.println("Chiusura connessione...");
-            
+
             // termina la connessione
             client_socket.close();
             server.close();
@@ -54,5 +56,15 @@ public class Server {
     // ritorna la lista dei client collegati
     public static List<ClientHandler> getClientHandlers() {
         return clientHandlers;
+    }
+    
+    public static void main(String[] args) {
+        manage = new ManageFrame();
+        manage.setTitle("Chat-Server");
+        manage.setSize(900, 600);
+        manage.setLocationRelativeTo(null);
+        manage.setVisible(true);
+
+        openServer();
     }
 }
