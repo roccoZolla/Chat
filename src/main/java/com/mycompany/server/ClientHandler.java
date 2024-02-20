@@ -26,13 +26,11 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             String inputLine;
+            // legge i messaggi in entrata dal server
             while ((inputLine = in.readLine()) != null) {
-                // Inoltra il messaggio agli altri client
-                for (ClientHandler handler : Server.getClientHandlers()) {
-                    if (handler != this) {
-                        handler.sendMessage(inputLine);
-                    }
-                }
+                // inoltra i messaggi dal client al server
+                // sendMessage(inputLine);
+                System.out.println("Messaggio dal client: " + inputLine);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,7 +38,7 @@ public class ClientHandler implements Runnable {
     }
 
     public void sendMessage(String message) {
-        out.println(message);
+        out.println(message);        
     }
 }
 

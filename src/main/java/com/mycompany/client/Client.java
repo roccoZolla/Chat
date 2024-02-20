@@ -12,56 +12,58 @@ import java.io.PrintWriter;
 import java.net.*;
 import java.util.Scanner;
 
-/**
- *
- * @author rocco
- */
 public class Client {
     static String serverAddress = "localhost"; // Indirizzo IP del server
     static int serverPort = 49152; // Porta del server
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
         try {
             InetAddress serverInetAddress = InetAddress.getByName(serverAddress);
             Socket socket = new Socket(serverInetAddress, serverPort);
 
             // Flussi di input e output per comunicare con il server
-            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            // PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
-            PrintWriter output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
 
-            System.out.println("In attesa di connessione al server");
-            
-            // Legge messaggi inviati dal server
-            String response;
-            while ((response = input.readLine()) != null) {
-                System.out.println("Messaggio dal server: " + response);
-            }
-            
-            boolean exit_flag = false;  // esci dal ciclo di invio mesasggi al server
+            // Thread per la ricezione dei messaggi dal server 
+            // se ne occuopa il metodo sendMessage della classe ClientHandler
+            Thread receiveThread = new Thread(() -> {
+                try {
+                    String response;
+                    while ((response = in.readLine()) != null) {
+                        System.out.println("Messaggio dal server: " + response);
+                    }
+                } catch (IOException e) {
+                    System.err.println("Errore durante la lettura dei messaggi dal server: " + e.getMessage());
+                }
+            });
+            receiveThread.start();
 
-            // inserisci testo e invialo al server
-            do {
-                Scanner scanner = new Scanner(System.in);
-                System.out.println("Inserisci una stringa:");
-                String text_input = scanner.nextLine();
+            // Thread per l'invio dei messaggi al server
+            Thread sendThread = new Thread(() -> {
+                try {
+                    Scanner scanner = new Scanner(System.in);
+                    while (true) {
+                        System.out.println("Inserisci una stringa:");
+                        String textInput = scanner.nextLine();
+                        out.println(textInput);
+                        if (textInput.equals("esc")) break;
+                    }
+                } catch (Exception e) {
+                    System.err.println("Errore durante l'invio del messaggio al server: " + e.getMessage());
+                }
+            });
+            sendThread.start();
 
-                output.println(text_input);
-                
-                if(text_input.equals("esc")) exit_flag = true;
-            } while(!exit_flag);
-
+            // Attendi che entrambi i thread terminino
+            receiveThread.join();
+            sendThread.join();
 
             // Chiude il socket quando la comunicazione è terminata
             System.out.println("Comunicazione terminata. Chiusura del client.");
             socket.close();
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             System.err.println("Errore durante la connessione al server: " + e.getMessage());
         }
-        
     }
-    
 }

@@ -4,11 +4,7 @@
  */
 
 package com.mycompany.server;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,18 +19,20 @@ import java.util.List;
 
 public class Server {
     private static List<ClientHandler> clientHandlers = new ArrayList<>();
+    private static int MAX_CONNECTIONS = 2;
     
     public static void main(String[] args) {
         // creazione del server
         int port = 49152;
+        int connections = 0;
         
         try {
             ServerSocket server = new ServerSocket(port);
             // non è safe ma utile per il debugging veloce
             server.setReuseAddress(true);
 
-            while(true) {
-                System.out.println("In attesa di connessioni...");
+            while(connections < MAX_CONNECTIONS) {
+                System.out.println("In attesa di connessioni..." +  connections + "/" + MAX_CONNECTIONS);
                 
                 Socket client_socket = server.accept();
                 System.out.println("Connessione accettata da: " + client_socket.getInetAddress());
@@ -46,8 +44,14 @@ public class Server {
                 clientHandler.sendMessage("Sei connesso al server!");
                 
                 // Avvia un nuovo thread per gestire la comunicazione con il client
+                // JVM chiama il metodo run della classe thread
                 new Thread(clientHandler).start();
+                
+                connections++;
             }
+            
+            // quando il numero di connessioni è raggiunto 
+            // spostati avvia la chat tra i due client
         } catch (IOException e) {
             System.err.println("Errore durante l'esecuzione del server: " + e.getMessage());
         }
