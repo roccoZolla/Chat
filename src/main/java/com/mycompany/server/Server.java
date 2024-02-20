@@ -19,7 +19,7 @@ import java.util.List;
 public class Server {
     // finestra in cui è possibile gestire le connessioni dei vari client
     private static ManageFrame manage;
-    private static int server_port = 49152; // numero di porta da cui è possibile accedere al server
+    private static int server_port = 8080; // numero di porta da cui è possibile accedere al server
     private static List<ClientHandler> clientHandlers = new ArrayList<>();
     // private static int MAX_CONNECTIONS = 2;
     
