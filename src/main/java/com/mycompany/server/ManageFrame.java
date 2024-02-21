@@ -5,6 +5,7 @@
 package com.mycompany.server;
 
 import java.awt.Color;
+import java.awt.GridLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
@@ -37,11 +38,11 @@ public class ManageFrame extends javax.swing.JFrame {
                 disconnect_client();
             }
         });
-        
         manage_panel.add(disconnect_button);
         
-        
-        
+            // Incrementa il numero di righe del layout
+        GridLayout layout = (GridLayout) manage_panel.getLayout();
+        layout.setRows(layout.getRows() + 1);
         
         manage_panel.revalidate();
         manage_panel.repaint();
@@ -60,14 +61,23 @@ public class ManageFrame extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
-        manage_panel = new javax.swing.JPanel();
+        connected_client_label = new javax.swing.JLabel();
         shutdown_server_button = new javax.swing.JButton();
+        manage_panel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        manage_panel.setLayout(new java.awt.GridBagLayout());
-        getContentPane().add(manage_panel, java.awt.BorderLayout.CENTER);
+        connected_client_label.setText("Client connessi");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        getContentPane().add(connected_client_label, gridBagConstraints);
 
         shutdown_server_button.setText("Spegni server");
         shutdown_server_button.addActionListener(new java.awt.event.ActionListener() {
@@ -75,7 +85,22 @@ public class ManageFrame extends javax.swing.JFrame {
                 shutdown_server_buttonActionPerformed(evt);
             }
         });
-        getContentPane().add(shutdown_server_button, java.awt.BorderLayout.PAGE_START);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_END;
+        getContentPane().add(shutdown_server_button, gridBagConstraints);
+
+        manage_panel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        manage_panel.setLayout(new java.awt.GridLayout());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 10.0;
+        gridBagConstraints.weighty = 2.0;
+        gridBagConstraints.insets = new java.awt.Insets(20, 0, 20, 0);
+        getContentPane().add(manage_panel, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -86,6 +111,7 @@ public class ManageFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_shutdown_server_buttonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel connected_client_label;
     private javax.swing.JPanel manage_panel;
     private javax.swing.JButton shutdown_server_button;
     // End of variables declaration//GEN-END:variables

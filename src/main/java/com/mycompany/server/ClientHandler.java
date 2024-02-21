@@ -10,7 +10,6 @@ import java.net.*;
 
 // classe che si occcupa di gestire i client connessi al server
 public class ClientHandler implements Runnable {
-
     private Socket clientSocket;
     private BufferedReader in;
     private PrintWriter out;
@@ -28,6 +27,11 @@ public class ClientHandler implements Runnable {
     public void sendMessage(String message) {
         out.println(message);
     }
+    
+    public Socket getSocket() {
+        return this.clientSocket;
+    }
+    
 
     public void run() {
         try {
@@ -36,6 +40,7 @@ public class ClientHandler implements Runnable {
             while ((inputLine = in.readLine()) != null) {
                 // inoltra i messaggi dal client al server
                 System.out.println("Messaggio dal client: " + inputLine);
+                Server.sendMessageToAllClient(clientSocket, "Tizio: " + inputLine);
             }
         } catch (IOException e) {
             // Gestisci l'errore di I/O
@@ -47,7 +52,7 @@ public class ClientHandler implements Runnable {
     }
 
     // rilascia le risorse relative al thread
-    private void closeResources() {
+    public void closeResources() {
         try {
             // chiudi flusso di input
             if (in != null) {

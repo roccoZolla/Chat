@@ -26,22 +26,23 @@ public class Server {
     // metodo che si occupa della creazione del server
     public static void openServer() {
         try {
+            System.out.println("Ti trovi in openServer");
             server = new ServerSocket(server_port);
             // non è safe ma utile per il debugging veloce
             server.setReuseAddress(true);
             
             // il server rimane in ascolto
-            while(true) {
+            while(!server.isClosed()) {
                 Socket client_socket = server.accept();
                 System.out.println("Connessione accettata da: " + client_socket.getInetAddress());
 
-                manage.addClient("client");
+                manage.addClient("Client: " + client_socket.getInetAddress() + ", " + client_socket.getPort());
                 
                 // fai partire il thread relativo al client appena connesso
                 ClientHandler clientHandler = new ClientHandler(client_socket);
                 clientHandlers.add(clientHandler);
                 
-                clientHandler.sendMessage("Sei connesso al server!");
+                clientHandler.sendMessage("----- Sei connesso al server! -----");
                 
                 // Avvia un nuovo thread per gestire la comunicazione con il client
                 // con start() l'esecuzione del thread è parallela a quella del thread principale
@@ -52,14 +53,26 @@ public class Server {
             }
 
         } catch (IOException e) {
+            // System.out.println("Ti trovi in openServer");
             System.err.println("Errore durante l'esecuzione del server: " + e.getMessage());
         }
     }
     
+    // si occupa di mandare un messaggio inviato da un client a tutti gli altri client connessi
+    public static void sendMessageToAllClient(Socket client_socket, String msg) {
+        for(ClientHandler client_handler : clientHandlers) {
+            if(client_handler.getSocket() != client_socket) {
+                client_handler.sendMessage(msg);
+            }
+        }
+    }
+    
     // disconnette un client collegato al server
-    public static void diconnectClient(Socket client_socket) {
+    public static void disconnectClient(Socket client_socket) {
         try {
-            client_socket.close();
+            if (client_socket != null) {
+                client_socket.close();
+            }
         } catch (IOException e) {
             System.err.println("Errore durante la chiusura della connessione: " + e.getMessage());
         }
@@ -67,11 +80,25 @@ public class Server {
     
     // chiude il server
     public static void closeServer() {
-        try {
-            server.close();
+        try {            
+            if(server != null) {
+                server.close();
+            }
+            
+            // rilascia le risorse per tutti i clienti connessi
+            for(ClientHandler client_handler : clientHandlers) {
+                client_handler.closeResources();
+            }
+            
+            if(manage != null) {
+                manage.dispose();
+            }
         } catch(IOException e) {
             System.err.println("Errore durante la chiusura del server: " + e.getMessage());
         }
+        
+        System.out.println("Ti trovi in closeServer");        
+        System.out.println("server chiuso correttamente");
     }
 
     // ritorna la lista dei client collegati
