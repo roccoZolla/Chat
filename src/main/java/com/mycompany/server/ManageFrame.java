@@ -4,6 +4,8 @@
  */
 package com.mycompany.server;
 
+import java.awt.Color;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 
 /**
@@ -19,14 +21,35 @@ public class ManageFrame extends javax.swing.JFrame {
         initComponents();
     }
     
-    public void setTextLabel(String text) {
-        jLabel1.setText(text);
+    public void addClient(String client_name) {
+        System.out.println("chiamata add Client");
+        
+        // aggiungi etichetta relativa al client
+        JLabel label = new JLabel(client_name);
+        label.setForeground(Color.BLACK);
+        manage_panel.add(label);
+        
+        // aggiungi bottone per disconnettere il client
+        JButton disconnect_button = new JButton();
+        disconnect_button.setText("Disconnetti");
+        disconnect_button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                disconnect_client();
+            }
+        });
+        
+        manage_panel.add(disconnect_button);
+        
+        
+        
+        
+        manage_panel.revalidate();
+        manage_panel.repaint();
     }
     
-    public void addClientLabel(String client_name) {
-        JLabel label = new JLabel(client_name);
-        revalidate();
-        repaint();
+    private void disconnect_client() {
+        System.out.println("disconnessione del client..."); // aggiungi info relative al client
+        // Server.diconnectClient(client_socket);
     }
 
     /**
@@ -38,37 +61,32 @@ public class ManageFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        manage_panel = new javax.swing.JPanel();
+        shutdown_server_button = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setText("jLabel1");
+        manage_panel.setLayout(new java.awt.GridBagLayout());
+        getContentPane().add(manage_panel, java.awt.BorderLayout.CENTER);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(jLabel1)
-                    .addGap(0, 0, Short.MAX_VALUE)))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(jLabel1)
-                    .addGap(0, 0, Short.MAX_VALUE)))
-        );
+        shutdown_server_button.setText("Spegni server");
+        shutdown_server_button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                shutdown_server_buttonActionPerformed(evt);
+            }
+        });
+        getContentPane().add(shutdown_server_button, java.awt.BorderLayout.PAGE_START);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void shutdown_server_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shutdown_server_buttonActionPerformed
+        // TODO add your handling code here:
+        Server.closeServer();
+    }//GEN-LAST:event_shutdown_server_buttonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel manage_panel;
+    private javax.swing.JButton shutdown_server_button;
     // End of variables declaration//GEN-END:variables
 }

@@ -5,7 +5,6 @@
 package com.mycompany.server;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,37 +18,59 @@ import java.util.List;
 public class Server {
     // finestra in cui è possibile gestire le connessioni dei vari client
     private static ManageFrame manage;
+    private static ServerSocket server;
     private static int server_port = 8080; // numero di porta da cui è possibile accedere al server
     private static List<ClientHandler> clientHandlers = new ArrayList<>();
     // private static int MAX_CONNECTIONS = 2;
     
     // metodo che si occupa della creazione del server
-    private static void openServer() {
+    public static void openServer() {
         try {
-            ServerSocket server = new ServerSocket(server_port);
+            server = new ServerSocket(server_port);
             // non è safe ma utile per il debugging veloce
             server.setReuseAddress(true);
-
-            Socket client_socket = server.accept();
-            System.out.println("Connessione accettata da: " + client_socket.getInetAddress());
             
-            manage.addClientLabel("client");
-            manage.setTextLabel("client connesso");
+            // il server rimane in ascolto
+            while(true) {
+                Socket client_socket = server.accept();
+                System.out.println("Connessione accettata da: " + client_socket.getInetAddress());
 
-            PrintWriter out = new PrintWriter(client_socket.getOutputStream(), true);
+                manage.addClient("client");
+                
+                // fai partire il thread relativo al client appena connesso
+                ClientHandler clientHandler = new ClientHandler(client_socket);
+                clientHandlers.add(clientHandler);
+                
+                clientHandler.sendMessage("Sei connesso al server!");
+                
+                // Avvia un nuovo thread per gestire la comunicazione con il client
+                // con start() l'esecuzione del thread è parallela a quella del thread principale
+                new Thread(clientHandler).start();
 
-            out.println("Sei connesso al server!");
+                // PrintWriter out = new PrintWriter(client_socket.getOutputStream(), true);
+                // out.println("Sei connesso al server!");
+            }
 
-            out.println("Chiusura connessione...");
-
-            // termina la connessione
-            client_socket.close();
-            server.close();
-
-            // quando il numero di connessioni è raggiunto 
-            // spostati avvia la chat tra i due client
         } catch (IOException e) {
             System.err.println("Errore durante l'esecuzione del server: " + e.getMessage());
+        }
+    }
+    
+    // disconnette un client collegato al server
+    public static void diconnectClient(Socket client_socket) {
+        try {
+            client_socket.close();
+        } catch (IOException e) {
+            System.err.println("Errore durante la chiusura della connessione: " + e.getMessage());
+        }
+    }
+    
+    // chiude il server
+    public static void closeServer() {
+        try {
+            server.close();
+        } catch(IOException e) {
+            System.err.println("Errore durante la chiusura del server: " + e.getMessage());
         }
     }
 

@@ -11,4 +11,11 @@
         <exec.mainClass>com.mycompany.server.Server</exec.mainClass>
     </properties>
     <name>Chat-Server</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.netbeans.external</groupId>
+            <artifactId>AbsoluteLayout</artifactId>
+            <version>RELEASE130</version>
+        </dependency>
+    </dependencies>
 </project>
