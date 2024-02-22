@@ -26,17 +26,17 @@ public class ClientHandler implements Runnable {
 
     public void sendMessage(String message) {
         out.println(message);
+        out.flush();
     }
     
     public Socket getSocket() {
         return this.clientSocket;
     }
     
-
     public void run() {
         try {
             String inputLine;
-            // legge i messaggi in entrata dal server
+            // legge i messaggi in entrata dal server fino quando ci sono o il socket non viene chiuso
             while ((inputLine = in.readLine()) != null) {
                 // inoltra i messaggi dal client al server
                 System.out.println("Messaggio dal client: " + inputLine);
@@ -44,7 +44,7 @@ public class ClientHandler implements Runnable {
             }
         } catch (IOException e) {
             // Gestisci l'errore di I/O
-            System.err.println("Errore di I/O durante la lettura dei messaggi dal client: " + e.getMessage());
+            System.err.println("nel clientHandler Errore di I/O durante la lettura dei messaggi dal client: " + e.getMessage());
         } finally {
             // Chiudi le risorse e termina il thread in modo pulito
             closeResources();
@@ -52,7 +52,8 @@ public class ClientHandler implements Runnable {
     }
 
     // rilascia le risorse relative al thread
-    public void closeResources() {
+    private void closeResources() {
+        System.out.println("Rilascio delle risorse relative al thread del client disconnesso");
         try {
             // chiudi flusso di input
             if (in != null) {

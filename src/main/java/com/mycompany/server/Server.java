@@ -32,28 +32,25 @@ public class Server {
             server.setReuseAddress(true);
             
             // il server rimane in ascolto
+            // BUGS - quando il server viene chiuso viene sollevata eccezione
+            // perche il socket del server risulta essere chiuso
             while(!server.isClosed()) {
                 Socket client_socket = server.accept();
                 System.out.println("Connessione accettata da: " + client_socket.getInetAddress());
 
                 // manage.addClient("Client: " + client_socket.getInetAddress() + ", " + client_socket.getPort());                
                 manage.addClient("Client: " + client_socket.getInetAddress() + ", " + client_socket.getPort(),client_socket);
-
-                
+            
                 // fai partire il thread relativo al client appena connesso
                 ClientHandler clientHandler = new ClientHandler(client_socket);
                 clientHandlers.add(clientHandler);
                 
                 clientHandler.sendMessage("----- Sei connesso al server! -----");
-                
+                        
                 // Avvia un nuovo thread per gestire la comunicazione con il client
                 // con start() l'esecuzione del thread è parallela a quella del thread principale
                 new Thread(clientHandler).start();
-
-                // PrintWriter out = new PrintWriter(client_socket.getOutputStream(), true);
-                // out.println("Sei connesso al server!");
             }
-
         } catch (IOException e) {
             // System.out.println("Ti trovi in openServer");
             System.err.println("Errore durante l'esecuzione del server: " + e.getMessage());
@@ -79,6 +76,14 @@ public class Server {
     public static void disconnectClient(Socket client_socket) {
         try {
             if (client_socket != null) {
+                // manda un messaggio al client che è stato disconnesso dal server
+                for (ClientHandler client_handler : clientHandlers) {
+                    if (client_handler.getSocket() == client_socket) {
+                        client_handler.sendMessage("----- Non sei piu connesso al server! ----");
+                    }
+                }
+                
+                // chiudi il socket
                 client_socket.close();
             }
         } catch (IOException e) {
@@ -88,16 +93,23 @@ public class Server {
     
     // chiude il server
     public static void closeServer() {
-        try {            
-            if(server != null) {
+        try {   
+            if(server != null && !server.isClosed()) {
+                System.out.println("chiusura del server");
                 server.close();
             }
-            
+                        
             // rilascia le risorse per tutti i clienti connessi
-            for(ClientHandler client_handler : clientHandlers) {
-                client_handler.closeResources();
+            if(!clientHandlers.isEmpty()) {
+                System.out.println("chiusura dei client connessi");
+                for (ClientHandler client_handler : clientHandlers) {
+
+                    disconnectClient(client_handler.getSocket());
+                }
+            } else {        // solo per il debug
+                System.out.println("Non ci sono client connessi");
             }
-            
+
             if(manage != null) {
                 manage.dispose();
             }

@@ -6,8 +6,10 @@ package com.mycompany.server;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridLayout;
-import java.awt.event.ActionListener;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+// import java.awt.GridLayout;
 import java.net.Socket;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -44,20 +46,8 @@ public class ManageFrame extends javax.swing.JFrame {
         });
         manage_panel.add(disconnect_button);
         
-            // Incrementa il numero di righe del layout
-        GridLayout layout = (GridLayout) manage_panel.getLayout();
-        layout.setRows(layout.getRows() + 1);
-        
         manage_panel.revalidate();
         manage_panel.repaint();
-        
-        for (Component component : manage_panel.getComponents()) {
-            System.out.println(component.getClass().getName());
-            if (component instanceof JButton) {
-                // Il componente è un JButton, continua con il resto della logica
-                System.out.println("pulsante aggiunto correttamente");
-            }
-        }
     }
     
     // rimuovi bottoni ed etichetta relativa al client
