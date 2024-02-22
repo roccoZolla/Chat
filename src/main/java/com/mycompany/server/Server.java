@@ -36,7 +36,9 @@ public class Server {
                 Socket client_socket = server.accept();
                 System.out.println("Connessione accettata da: " + client_socket.getInetAddress());
 
-                manage.addClient("Client: " + client_socket.getInetAddress() + ", " + client_socket.getPort());
+                // manage.addClient("Client: " + client_socket.getInetAddress() + ", " + client_socket.getPort());                
+                manage.addClient("Client: " + client_socket.getInetAddress() + ", " + client_socket.getPort(),client_socket);
+
                 
                 // fai partire il thread relativo al client appena connesso
                 ClientHandler clientHandler = new ClientHandler(client_socket);
@@ -65,6 +67,12 @@ public class Server {
                 client_handler.sendMessage(msg);
             }
         }
+    }
+    
+    // chiamata quando il thread relativo viene terminato
+    // aggiorna lo stato del client, connesso / non connesso
+    public static void updateClientStatus(ClientHandler clientHandler) {
+        manage.removeClient(clientHandler.getSocket());
     }
     
     // disconnette un client collegato al server

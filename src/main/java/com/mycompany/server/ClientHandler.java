@@ -68,6 +68,10 @@ public class ClientHandler implements Runnable {
             if (clientSocket != null) {
                 clientSocket.close();
             }
+            
+            // quando viene terminato il thread
+            // aggiorna lo stato del client
+            Server.updateClientStatus(this);
         } catch (IOException e) {
             // Gestisci eventuali errori durante la chiusura delle risorse
             System.err.println("Errore durante la chiusura delle risorse: " + e.getMessage());

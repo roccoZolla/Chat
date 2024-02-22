@@ -5,7 +5,10 @@
 package com.mycompany.server;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.event.ActionListener;
+import java.net.Socket;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
@@ -22,7 +25,7 @@ public class ManageFrame extends javax.swing.JFrame {
         initComponents();
     }
     
-    public void addClient(String client_name) {
+    public void addClient(String client_name, Socket client_socket) {
         System.out.println("chiamata add Client");
         
         // aggiungi etichetta relativa al client
@@ -33,9 +36,10 @@ public class ManageFrame extends javax.swing.JFrame {
         // aggiungi bottone per disconnettere il client
         JButton disconnect_button = new JButton();
         disconnect_button.setText("Disconnetti");
+        disconnect_button.putClientProperty("clientSocket", client_socket); // associa client al bottone
         disconnect_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                disconnect_client();
+                disconnect_client(client_socket);
             }
         });
         manage_panel.add(disconnect_button);
@@ -46,11 +50,48 @@ public class ManageFrame extends javax.swing.JFrame {
         
         manage_panel.revalidate();
         manage_panel.repaint();
+        
+        for (Component component : manage_panel.getComponents()) {
+            System.out.println(component.getClass().getName());
+            if (component instanceof JButton) {
+                // Il componente è un JButton, continua con il resto della logica
+                System.out.println("pulsante aggiunto correttamente");
+            }
+        }
     }
     
-    private void disconnect_client() {
-        System.out.println("disconnessione del client..."); // aggiungi info relative al client
-        // Server.diconnectClient(client_socket);
+    // rimuovi bottoni ed etichetta relativa al client
+    public void removeClient(Socket client_socket) {
+        System.out.println("Rimozione componenti relativi al client");
+
+        // Cerca il pulsante e l'etichetta relativi al clientSocket e rimuovili
+        for (Component component : manage_panel.getComponents()) {
+            System.out.println(component.getClass().getName());
+            if (component instanceof JButton) {
+                System.out.println("pulsante da rimuovere trovato");
+                JButton button = (JButton) component;
+                Socket socket = (Socket) button.getClientProperty("clientSocket");
+                if (socket != null && socket.equals(client_socket)) {
+                    manage_panel.remove(button);
+                    // break;
+                }
+            } else if (component instanceof JLabel) {
+                JLabel label = (JLabel) component;
+                if (label.getText().contains("Client: " + client_socket.getInetAddress() + ", " + client_socket.getPort())) {
+                    System.out.println("rimozione label");
+                    manage_panel.remove(label);
+                    // break;
+                }
+            }
+        }
+
+        manage_panel.revalidate();
+        manage_panel.repaint();
+    }
+
+    private void disconnect_client(Socket client_socket) {
+        // System.out.println("disconnessione del client..."); // aggiungi info relative al client
+        Server.disconnectClient(client_socket);
     }
 
     /**
