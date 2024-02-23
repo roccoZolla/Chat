@@ -21,10 +21,12 @@ public class Server {
     private static ServerSocket server;
     private static int server_port = 8080; // numero di porta da cui è possibile accedere al server
     private static List<ClientHandler> clientHandlers = new ArrayList<>();
+    private static List<String> clients_list = new ArrayList<>();
     // private static int MAX_CONNECTIONS = 2;
     
     // metodo che si occupa della creazione del server
     public static void openServer() {
+        clients_list.add("lista: ");
         try {
             System.out.println("Ti trovi in openServer");
             server = new ServerSocket(server_port);
@@ -37,17 +39,13 @@ public class Server {
             while(!server.isClosed()) {
                 Socket client_socket = server.accept();
                 System.out.println("Connessione accettata da: " + client_socket.getInetAddress());
-
-                // manage.addClient("Client: " + client_socket.getInetAddress() + ", " + client_socket.getPort());                
-                manage.addClient("Client: " + client_socket.getInetAddress() + ", " + client_socket.getPort(),client_socket);
             
                 // fai partire il thread relativo al client appena connesso
                 ClientHandler clientHandler = new ClientHandler(client_socket);
                 clientHandlers.add(clientHandler);
                 
                 clientHandler.sendMessage("----- Sei connesso al server! -----");
-                        
-                // Avvia un nuovo thread per gestire la comunicazione con il client
+                
                 // con start() l'esecuzione del thread è parallela a quella del thread principale
                 new Thread(clientHandler).start();
             }
@@ -57,19 +55,44 @@ public class Server {
         }
     }
     
+    public static void updateManageScreen(ClientHandler clientHandler) {
+        if(clientHandler.getSocket().isClosed()) {  
+            // se socket chiuso, rimuovi client 
+            manage.removeClient(clientHandler.getSocket());
+        } else {
+            // altrimenti aggiungi client
+            String client_info = clientHandler.getNickname() + ": " + clientHandler.getSocket().getInetAddress() + ", " + clientHandler.getSocket().getPort();
+            manage.addClient(client_info, clientHandler.getSocket());
+        }
+    }
+    
+    // aggiorna la lista degli utenti connessi e la inoltra a tutti client connessi
+    public static void addNewClientToList(String new_client) {
+        clients_list.add(new_client);
+        String clients_list_as_string = String.join(", ", clients_list);
+        
+        for(ClientHandler client_handler : clientHandlers) {
+            client_handler.sendMessage(clients_list_as_string);
+        }
+    }
+    
+    // rimuove un client dalla lista e invia la lista aggiornata a tutti i client connessi
+    public static void removeClientFromList(String client) {
+        clients_list.remove(client);
+        String clients_list_as_string = String.join(", ", clients_list);
+        
+        for(ClientHandler client_handler : clientHandlers) {
+            client_handler.sendMessage(clients_list_as_string);
+        }
+    }
+    
     // si occupa di mandare un messaggio inviato da un client a tutti gli altri client connessi
-    public static void sendMessageToAllClient(Socket client_socket, String msg) {
+    public static void sendMessageFromOneToAllClient(Socket client_socket, String msg) {
         for(ClientHandler client_handler : clientHandlers) {
             if(client_handler.getSocket() != client_socket) {
                 client_handler.sendMessage(msg);
             }
         }
-    }
-    
-    // chiamata quando il thread relativo viene terminato
-    // aggiorna lo stato del client, connesso / non connesso
-    public static void updateClientStatus(ClientHandler clientHandler) {
-        manage.removeClient(clientHandler.getSocket());
     }
     
     // disconnette un client collegato al server

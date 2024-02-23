@@ -6,10 +6,6 @@ package com.mycompany.server;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-// import java.awt.GridLayout;
 import java.net.Socket;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -33,6 +29,7 @@ public class ManageFrame extends javax.swing.JFrame {
         // aggiungi etichetta relativa al client
         JLabel label = new JLabel(client_name);
         label.setForeground(Color.BLACK);
+        label.putClientProperty("clientSocket", client_socket); // associa client alla label
         manage_panel.add(label);
         
         // aggiungi bottone per disconnettere il client
@@ -56,7 +53,6 @@ public class ManageFrame extends javax.swing.JFrame {
 
         // Cerca il pulsante e l'etichetta relativi al clientSocket e rimuovili
         for (Component component : manage_panel.getComponents()) {
-            System.out.println(component.getClass().getName());
             if (component instanceof JButton) {
                 System.out.println("pulsante da rimuovere trovato");
                 JButton button = (JButton) component;
@@ -67,7 +63,8 @@ public class ManageFrame extends javax.swing.JFrame {
                 }
             } else if (component instanceof JLabel) {
                 JLabel label = (JLabel) component;
-                if (label.getText().contains("Client: " + client_socket.getInetAddress() + ", " + client_socket.getPort())) {
+                Socket socket = (Socket) label.getClientProperty("clientSocket");
+                if (socket != null && socket.equals(client_socket)) {
                     System.out.println("rimozione label");
                     manage_panel.remove(label);
                     // break;
@@ -123,7 +120,7 @@ public class ManageFrame extends javax.swing.JFrame {
         getContentPane().add(shutdown_server_button, gridBagConstraints);
 
         manage_panel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        manage_panel.setLayout(new java.awt.GridLayout());
+        manage_panel.setLayout(new java.awt.GridLayout(1, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;

@@ -10,6 +10,7 @@ import java.net.*;
 
 // classe che si occcupa di gestire i client connessi al server
 public class ClientHandler implements Runnable {
+    private String nickname;        // nome del client scelto dall'utente
     private Socket clientSocket;
     private BufferedReader in;
     private PrintWriter out;
@@ -33,14 +34,32 @@ public class ClientHandler implements Runnable {
         return this.clientSocket;
     }
     
+    public String getNickname() {
+        return this.nickname;
+    }
+    
+    // estrae il nick del client
+    private void extractNickname(String inputLine) {
+        System.out.println("Estraggo il nickname");
+        nickname = inputLine.substring("Nickname: ".length());
+    }
+    
+    @Override
     public void run() {
         try {
-            String inputLine;
+            String message;
             // legge i messaggi in entrata dal server fino quando ci sono o il socket non viene chiuso
-            while ((inputLine = in.readLine()) != null) {
-                // inoltra i messaggi dal client al server
-                System.out.println("Messaggio dal client: " + inputLine);
-                Server.sendMessageToAllClient(clientSocket, "Tizio: " + inputLine);
+            while ((message = in.readLine()) != null) {
+                // controlla che il messaggio inviato non contenga il nick del client
+                if(message.startsWith("Nickname: ")) {
+                    extractNickname(message);
+                    Server.updateManageScreen(this);
+                    Server.addNewClientToList(nickname);
+                } else { // se non contiene il nick procedi all'invio dei messaggi
+                    // inoltra i messaggi dal client al server
+                    System.out.println("Messaggio dal client: " + message);
+                    Server.sendMessageFromOneToAllClient(clientSocket, nickname + ": " + message);
+                }
             }
         } catch (IOException e) {
             // Gestisci l'errore di I/O
@@ -71,8 +90,11 @@ public class ClientHandler implements Runnable {
             }
             
             // quando viene terminato il thread
-            // aggiorna lo stato del client
-            Server.updateClientStatus(this);
+            // aggiorna l'interfaccia
+            Server.updateManageScreen(this);
+            
+            // rimuovi il client dalla lista
+            Server.removeClientFromList(nickname);
         } catch (IOException e) {
             // Gestisci eventuali errori durante la chiusura delle risorse
             System.err.println("Errore durante la chiusura delle risorse: " + e.getMessage());
